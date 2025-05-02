@@ -19,7 +19,7 @@ data class Car(
     fun toDocument(): Document = Document.parse(Json.encodeToString(this))
 
     companion object {
-        private val json = Json { ignoreUnknownKeys = true }
+        private val json = Json { ignoreUnknownKeys = true; prettyPrint = true }
 
         fun fromDocument(document: Document): Car = json.decodeFromString(document.toJson())
     }

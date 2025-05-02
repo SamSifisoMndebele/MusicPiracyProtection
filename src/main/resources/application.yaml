@@ -1,0 +1,15 @@
+ktor:
+  application:
+    modules:
+      - ul.group14.ApplicationKt.module
+  deployment:
+    port: 8080
+
+db:
+  mongo:
+    user: samsmndebele
+    password: ITcjZuyZydNqF7nd
+    host: musicpiracyprotectioncl.3tlem0g.mongodb.net
+    maxPoolSize: 20
+    databaseName: test
+    clusterName: MusicPiracyProtectionCluster

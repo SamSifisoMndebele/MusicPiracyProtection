@@ -53,13 +53,14 @@ fun Application.configureDatabases() {
 /**
  * Establishes connection with a MongoDB database.
  *
- * The following configuration properties (in application.yaml/application.conf) can be specified:
- * * `db.mongo.user` username for your database
- * * `db.mongo.password` password for the user
- * * `db.mongo.host` host that will be used for the database connection
- * * `db.mongo.port` port that will be used for the database connection
- * * `db.mongo.maxPoolSize` maximum number of connections to a MongoDB server
- * * `db.mongo.database.name` name of the database
+ * The following configuration properties (in application.yaml/application.yaml) can be specified:
+ * * `mongoDb.user` username for your database
+ * * `mongoDb.password` password for the user
+ * * `mongoDb.host` host that will be used for the database connection
+ * * `mongoDb.port` port that will be used for the database connection
+ * * `mongoDb.maxPoolSize` maximum number of connections to a MongoDB server
+ * * `mongoDb.databaseName` name of the database
+ * * `mongoDb.clusterName` name of the cluster
  *
  * IMPORTANT NOTE: in order to make MongoDB connection working, you have to start a MongoDB server first.
  * See the instructions here: https://www.mongodb.com/docs/manual/administration/install-community/
@@ -68,18 +69,19 @@ fun Application.configureDatabases() {
  * @returns [MongoDatabase] instance
  * */
 fun Application.connectToMongoDB(): MongoDatabase {
-//    val user = environment.config.tryGetString("db.mongo.user")
-//    val password = environment.config.tryGetString("db.mongo.password")
-//    val host = environment.config.tryGetString("db.mongo.host") ?: "127.0.0.1"
-//    val port = environment.config.tryGetString("db.mongo.port") ?: "27017"
-    val maxPoolSize = environment.config.tryGetString("db.mongo.maxPoolSize")?.toInt() ?: 20
-    val databaseName = environment.config.tryGetString("db.mongo.database.name") ?: "test"
-//
-//    val credentials = user?.let { userVal -> password?.let { passwordVal -> "$userVal:$passwordVal@" } }.orEmpty()
-//    val connectionString = "mongodb://$credentials$host:$port/?maxPoolSize=$maxPoolSize&w=majority"
-    val connectionString = "mongodb+srv://samsmndebele:ITcjZuyZydNqF7nd@musicpiracyprotectioncl.3tlem0g.mongodb.net/" +
-            "?retryWrites=true&maxPoolSize=$maxPoolSize&w=majority&appName=MusicPiracyProtectionCluster"
+    val user = environment.config.tryGetString("mongoDb.user")
+    val password = environment.config.tryGetString("mongoDb.password")
+    val host = environment.config.tryGetString("mongoDb.host") ?: "127.0.0.1"
+    val port = environment.config.tryGetString("mongoDb.port")
+    val maxPoolSize = environment.config.tryGetString("mongoDb.maxPoolSize")?.toInt() ?: 20
+    val databaseName = environment.config.tryGetString("mongoDb.databaseName") ?: "test"
+    val clusterName = environment.config.tryGetString("mongoDb.clusterName") ?: "MusicPiracyProtectionCluster"
 
+    val credentials = user?.let { userVal -> password?.let { passwordVal -> "$userVal:$passwordVal@" } }.orEmpty()
+    val url = port?.let { portVal -> "$host:$portVal" } ?: host
+    val parameters = "?retryWrites=true&maxPoolSize=$maxPoolSize&w=majority&appName=$clusterName"
+
+    val connectionString = "mongodb+srv://$credentials$url/$parameters"
     val serverApi = ServerApi.builder()
         .version(ServerApiVersion.V1)
         .build()
@@ -87,18 +89,10 @@ fun Application.connectToMongoDB(): MongoDatabase {
         .applyConnectionString(ConnectionString(connectionString))
         .serverApi(serverApi)
         .build()
-
     val mongoClient = MongoClients.create(mongoClientSettings)
-    val database = mongoClient.getDatabase(databaseName).also { database ->
-        runBlocking {
-            database.runCommand(Document("ping", 1))
-        }
-        println("Pinged your deployment. You successfully connected to MongoDB!")
-    }
-
+    val database = mongoClient.getDatabase(databaseName)
     monitor.subscribe(ApplicationStopped) {
         mongoClient.close()
     }
-
     return database
 }
