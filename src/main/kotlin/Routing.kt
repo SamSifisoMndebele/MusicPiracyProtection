@@ -27,15 +27,15 @@ fun Application.configureRouting() {
         }
     }
     routing {
-        get("/") {
+        get("/hello") {
             call.respondText("Hello World!")
         }
         get<Articles> { article ->
             // Get all articles ...
             call.respond("List of articles sorted starting from ${article.sort}")
         }
-        // Static plugin. Try to access `/static/index.html`
-        staticResources("/static", "static")
+        // Static plugin. Try to access `/index.html`
+        staticResources("/", "static")
     }
 }
 
