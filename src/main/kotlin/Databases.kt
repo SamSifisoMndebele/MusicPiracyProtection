@@ -1,43 +1,19 @@
 package ul.group14
 
-import com.mongodb.client.*
-import com.mongodb.kotlin.client.coroutine.MongoClient
-import dev.inmo.krontab.builder.*
-import io.github.flaxoos.ktor.server.plugins.taskscheduling.*
-import io.github.flaxoos.ktor.server.plugins.taskscheduling.managers.lock.database.*
-import io.github.flaxoos.ktor.server.plugins.taskscheduling.managers.lock.redis.*
-import io.ktor.client.*
-import io.ktor.client.engine.apache.*
+import com.mongodb.ConnectionString
+import com.mongodb.MongoClientSettings
+import com.mongodb.ServerApi
+import com.mongodb.ServerApiVersion
+import com.mongodb.client.MongoClients
+import com.mongodb.client.MongoDatabase
 import io.ktor.http.*
-import io.ktor.resources.*
-import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
 import io.ktor.server.config.*
-import io.ktor.server.html.*
-import io.ktor.server.http.content.*
-import io.ktor.server.plugins.compression.*
-import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.plugins.cors.routing.*
-import io.ktor.server.plugins.requestvalidation.RequestValidation
-import io.ktor.server.plugins.requestvalidation.ValidationResult
-import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
-import io.ktor.server.resources.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.server.sessions.*
-import io.ktor.server.thymeleaf.Thymeleaf
-import io.ktor.server.thymeleaf.ThymeleafContent
-import kotlinx.css.*
-import kotlinx.html.*
-import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.dsl.module
-import org.koin.ktor.plugin.Koin
-import org.koin.logger.slf4jLogger
-import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
+import kotlinx.coroutines.runBlocking
+import org.bson.Document
 
 fun Application.configureDatabases() {
     val mongoDatabase = connectToMongoDB()
@@ -92,18 +68,33 @@ fun Application.configureDatabases() {
  * @returns [MongoDatabase] instance
  * */
 fun Application.connectToMongoDB(): MongoDatabase {
-    val user = environment.config.tryGetString("db.mongo.user")
-    val password = environment.config.tryGetString("db.mongo.password")
-    val host = environment.config.tryGetString("db.mongo.host") ?: "127.0.0.1"
-    val port = environment.config.tryGetString("db.mongo.port") ?: "27017"
+//    val user = environment.config.tryGetString("db.mongo.user")
+//    val password = environment.config.tryGetString("db.mongo.password")
+//    val host = environment.config.tryGetString("db.mongo.host") ?: "127.0.0.1"
+//    val port = environment.config.tryGetString("db.mongo.port") ?: "27017"
     val maxPoolSize = environment.config.tryGetString("db.mongo.maxPoolSize")?.toInt() ?: 20
-    val databaseName = environment.config.tryGetString("db.mongo.database.name") ?: "myDatabase"
+    val databaseName = environment.config.tryGetString("db.mongo.database.name") ?: "test"
+//
+//    val credentials = user?.let { userVal -> password?.let { passwordVal -> "$userVal:$passwordVal@" } }.orEmpty()
+//    val connectionString = "mongodb://$credentials$host:$port/?maxPoolSize=$maxPoolSize&w=majority"
+    val connectionString = "mongodb+srv://samsmndebele:ITcjZuyZydNqF7nd@musicpiracyprotectioncl.3tlem0g.mongodb.net/" +
+            "?retryWrites=true&maxPoolSize=$maxPoolSize&w=majority&appName=MusicPiracyProtectionCluster"
 
-    val credentials = user?.let { userVal -> password?.let { passwordVal -> "$userVal:$passwordVal@" } }.orEmpty()
-    val uri = "mongodb://$credentials$host:$port/?maxPoolSize=$maxPoolSize&w=majority"
+    val serverApi = ServerApi.builder()
+        .version(ServerApiVersion.V1)
+        .build()
+    val mongoClientSettings = MongoClientSettings.builder()
+        .applyConnectionString(ConnectionString(connectionString))
+        .serverApi(serverApi)
+        .build()
 
-    val mongoClient = MongoClients.create(uri)
-    val database = mongoClient.getDatabase(databaseName)
+    val mongoClient = MongoClients.create(mongoClientSettings)
+    val database = mongoClient.getDatabase(databaseName).also { database ->
+        runBlocking {
+            database.runCommand(Document("ping", 1))
+        }
+        println("Pinged your deployment. You successfully connected to MongoDB!")
+    }
 
     monitor.subscribe(ApplicationStopped) {
         mongoClient.close()
