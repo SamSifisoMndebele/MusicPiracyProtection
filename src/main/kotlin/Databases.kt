@@ -53,7 +53,7 @@ fun Application.configureDatabases() {
 /**
  * Establishes connection with a MongoDB database.
  *
- * The following configuration properties (in application.yaml/application.yaml) can be specified:
+ * The following configuration properties (in application.yaml/application.conf) can be specified:
  * * `mongoDb.user` username for your database
  * * `mongoDb.password` password for the user
  * * `mongoDb.host` host that will be used for the database connection
@@ -62,9 +62,9 @@ fun Application.configureDatabases() {
  * * `mongoDb.databaseName` name of the database
  * * `mongoDb.clusterName` name of the cluster
  *
- * IMPORTANT NOTE: in order to make MongoDB connection working, you have to start a MongoDB server first.
+ * IMPORTANT NOTE: to make MongoDB connection working, you have to start a MongoDB server first.
  * See the instructions here: https://www.mongodb.com/docs/manual/administration/install-community/
- * all the paramaters above
+ * all the parameters above
  *
  * @returns [MongoDatabase] instance
  * */

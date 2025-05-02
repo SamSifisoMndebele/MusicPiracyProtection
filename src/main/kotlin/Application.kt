@@ -10,8 +10,6 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
-    println("Application: " + environment.config.keys())
-
     configureHTTP()
 //    configureSecurity()
     configureSerialization()
