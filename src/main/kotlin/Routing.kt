@@ -34,7 +34,6 @@ fun Application.configureRouting() {
             // Get all articles ...
             call.respond("List of articles sorted starting from ${article.sort}")
         }
-        // Static plugin. Try to access `/index.html`
         staticResources("/", "static")
     }
 }
