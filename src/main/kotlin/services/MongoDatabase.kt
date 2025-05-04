@@ -4,8 +4,8 @@ import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
 import com.mongodb.ServerApi
 import com.mongodb.ServerApiVersion
-import com.mongodb.client.MongoClients
-import com.mongodb.client.MongoDatabase
+import com.mongodb.kotlin.client.coroutine.MongoDatabase
+import com.mongodb.kotlin.client.coroutine.MongoClient
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationStopped
 import io.ktor.server.config.tryGetString
@@ -53,7 +53,7 @@ fun Application.connectToMongoDB(): MongoDatabase {
             .version(ServerApiVersion.V1)
             .build())
         .build()
-    val mongoClient = MongoClients.create(settings)
+    val mongoClient = MongoClient.create(settings)
     val database = mongoClient.getDatabase(databaseName)
     monitor.subscribe(ApplicationStopped) {
         mongoClient.close()
