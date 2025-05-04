@@ -1,9 +1,11 @@
 package ul.group14.services
 
-import com.mongodb.client.MongoCollection
-import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.Filters
+import com.mongodb.kotlin.client.coroutine.MongoCollection
+import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -29,8 +31,10 @@ class CarService(private val database: MongoDatabase) {
     var collection: MongoCollection<Document>
 
     init {
-        database.createCollection("cars")
-        collection = database.getCollection("cars")
+        runBlocking {
+            database.createCollection("cars")
+            collection = database.getCollection("cars")
+        }
     }
 
     // Create new car
@@ -42,7 +46,7 @@ class CarService(private val database: MongoDatabase) {
 
     // Read a car
     suspend fun read(id: String): Car? = withContext(Dispatchers.IO) {
-        collection.find(Filters.eq("_id", ObjectId(id))).first()?.let(Car::fromDocument)
+        collection.find(Filters.eq("_id", ObjectId(id))).first().let(Car::fromDocument)
     }
 
     // Update a car
