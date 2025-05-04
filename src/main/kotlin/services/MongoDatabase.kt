@@ -1,4 +1,4 @@
-package ul.group14
+package ul.group14.services
 
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
@@ -6,49 +6,10 @@ import com.mongodb.ServerApi
 import com.mongodb.ServerApiVersion
 import com.mongodb.client.MongoClients
 import com.mongodb.client.MongoDatabase
-import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.config.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import kotlinx.coroutines.runBlocking
-import org.bson.Document
-
-fun Application.configureDatabases() {
-    val mongoDatabase = connectToMongoDB()
-    val carService = CarService(mongoDatabase)
-    routing {
-        // Create car
-        post("/cars") {
-            val car = call.receive<Car>()
-            val id = carService.create(car)
-            call.respond(HttpStatusCode.Created, id)
-        }
-        // Read car
-        get("/cars/{id}") {
-            val id = call.parameters["id"] ?: throw IllegalArgumentException("No ID found")
-            carService.read(id)?.let { car ->
-                call.respond(car)
-            } ?: call.respond(HttpStatusCode.NotFound)
-        }
-        // Update car
-        put("/cars/{id}") {
-            val id = call.parameters["id"] ?: throw IllegalArgumentException("No ID found")
-            val car = call.receive<Car>()
-            carService.update(id, car)?.let {
-                call.respond(HttpStatusCode.OK)
-            } ?: call.respond(HttpStatusCode.NotFound)
-        }
-        // Delete car
-        delete("/cars/{id}") {
-            val id = call.parameters["id"] ?: throw IllegalArgumentException("No ID found")
-            carService.delete(id)?.let {
-                call.respond(HttpStatusCode.OK)
-            } ?: call.respond(HttpStatusCode.NotFound)
-        }
-    }
-}
+import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationStopped
+import io.ktor.server.config.tryGetString
+import java.util.concurrent.TimeUnit
 
 /**
  * Establishes connection with a MongoDB database.
@@ -82,14 +43,17 @@ fun Application.connectToMongoDB(): MongoDatabase {
     val parameters = "?retryWrites=true&maxPoolSize=$maxPoolSize&w=majority&appName=$clusterName"
 
     val connectionString = "mongodb+srv://$credentials$url/$parameters"
-    val serverApi = ServerApi.builder()
-        .version(ServerApiVersion.V1)
-        .build()
-    val mongoClientSettings = MongoClientSettings.builder()
+
+    val settings = MongoClientSettings.builder()
         .applyConnectionString(ConnectionString(connectionString))
-        .serverApi(serverApi)
+        .applyToSocketSettings { builder ->
+            builder.connectTimeout(20, TimeUnit.SECONDS)
+        }
+        .serverApi(ServerApi.builder()
+            .version(ServerApiVersion.V1)
+            .build())
         .build()
-    val mongoClient = MongoClients.create(mongoClientSettings)
+    val mongoClient = MongoClients.create(settings)
     val database = mongoClient.getDatabase(databaseName)
     monitor.subscribe(ApplicationStopped) {
         mongoClient.close()

@@ -1,4 +1,4 @@
-package ul.group14
+package ul.group14.plugins
 
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings

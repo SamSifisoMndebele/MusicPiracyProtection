@@ -1,4 +1,4 @@
-package ul.group14
+package ul.group14.services
 
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.MongoDatabase

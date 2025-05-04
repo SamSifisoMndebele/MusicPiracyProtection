@@ -1,4 +1,4 @@
-package ul.group14
+package ul.group14.plugins
 
 import io.ktor.http.*
 import io.ktor.server.application.*

@@ -1,9 +1,8 @@
 package ul.group14
 
 import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
 import io.ktor.server.netty.EngineMain.createServer
+import ul.group14.plugins.*
 
 fun main(args: Array<String>) {
     createServer(args).start(wait = true)
@@ -11,9 +10,9 @@ fun main(args: Array<String>) {
 
 fun Application.module() {
     configureHTTP()
-//    configureSecurity()
     configureSerialization()
-//    configureDatabases()
+    configureSecurity()
+    configureDatabases()
 //    configureTemplating()
 //    configureFrameworks()
 //    configureAdministration()
