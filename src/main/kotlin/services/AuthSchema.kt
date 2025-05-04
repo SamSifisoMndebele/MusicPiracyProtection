@@ -1,8 +1,9 @@
 package ul.group14.services
 
-import com.mongodb.client.MongoCollection
-import com.mongodb.client.MongoDatabase
+import com.mongodb.kotlin.client.coroutine.MongoCollection
+import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
@@ -36,8 +37,10 @@ data class User(
 class AuthService(private val database: MongoDatabase) {
     var usersCollection: MongoCollection<Document>
     init {
-        database.createCollection("users")
-        usersCollection = database.getCollection("users")
+        runBlocking {
+            database.createCollection("users")
+            usersCollection = database.getCollection("users")
+        }
     }
 
 
