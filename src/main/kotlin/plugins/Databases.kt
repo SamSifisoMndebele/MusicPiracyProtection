@@ -1,14 +1,7 @@
 package ul.group14.plugins
 
-import com.mongodb.ConnectionString
-import com.mongodb.MongoClientSettings
-import com.mongodb.ServerApi
-import com.mongodb.ServerApiVersion
-import com.mongodb.client.MongoClients
-import com.mongodb.client.MongoDatabase
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.config.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
