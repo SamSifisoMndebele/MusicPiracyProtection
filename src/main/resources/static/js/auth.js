@@ -6,7 +6,6 @@
     /*==================================================================
     [ Validate ]*/
     const input = $('.validate-input .input100');
-
     $('.validate-form').on('submit',function(){
         let check = true;
 
@@ -15,6 +14,11 @@
                 showValidate(input[i]);
                 check=false;
             }
+        }
+        if(check){
+            $('.button-login')
+                .html('Login...')
+                .attr('disabled', 'disabled');
         }
 
         return check;
@@ -48,11 +52,9 @@
     }
 
     function hideValidate(input) {
-        var thisAlert = $(input).parent();
+        const thisAlert = $(input).parent();
 
         $(thisAlert).removeClass('alert-validate');
     }
-    
-    
 
 })(jQuery);
