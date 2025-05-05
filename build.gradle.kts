@@ -26,11 +26,29 @@ repositories {
     maven { url = uri("https://packages.confluent.io/maven/") }
 }
 
+ktor {
+    fatJar {
+        archiveFileName.set("server.jar")
+    }
+    docker {
+        jreVersion.set(JavaVersion.VERSION_17)
+        externalRegistry.set(
+            io.ktor.plugin.features.DockerImageRegistry.dockerHub(
+                appName = provider { "musicpiracyprotection-server" },
+                username = providers.environmentVariable("DOCKER_HUB_USERNAME"),
+                password = providers.environmentVariable("DOCKER_HUB_PASSWORD")
+            )
+        )
+    }
+}
+
 dependencies {
+    implementation("org.mindrot:jbcrypt:0.4")
     implementation("io.ktor:ktor-server-compression")
     implementation("io.ktor:ktor-server-cors")
     implementation("io.ktor:ktor-server-core")
     implementation("io.ktor:ktor-server-auth")
+    implementation("io.ktor:ktor-server-sessions")
     implementation("io.ktor:ktor-client-core")
     implementation("io.ktor:ktor-client-apache")
     implementation("io.ktor:ktor-server-request-validation")
@@ -53,6 +71,7 @@ dependencies {
 //    implementation("io.github.flaxoos:ktor-server-task-scheduling-jdbc:2.1.2")
     implementation("io.ktor:ktor-server-netty")
     implementation("ch.qos.logback:logback-classic:$logback_version")
+    implementation("io.ktor:ktor-serialization-gson:3.1.2")
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 }
