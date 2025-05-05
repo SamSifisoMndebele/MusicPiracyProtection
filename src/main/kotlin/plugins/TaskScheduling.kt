@@ -9,7 +9,7 @@ import io.github.flaxoos.ktor.server.plugins.taskscheduling.TaskScheduling
 import io.github.flaxoos.ktor.server.plugins.taskscheduling.managers.lock.database.mongoDb
 import io.ktor.server.application.*
 
-fun Application.configureAdministration() {
+fun Application.configureTaskScheduling() {
     install(TaskScheduling) {
         mongoDb("my mongodb manager") {
             databaseName = "test"
