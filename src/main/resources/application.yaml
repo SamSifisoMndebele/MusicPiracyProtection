@@ -6,9 +6,9 @@ ktor:
     port: 8080
 
 mongoDb:
-  user: samsmndebele
-  password: ITcjZuyZydNqF7nd
-  host: musicpiracyprotectioncl.3tlem0g.mongodb.net
+  user: app
+  password: J2oH0G8hWgSSav8n
+  host: musicpiracyprotectioncl.wtaaadi.mongodb.net
   maxPoolSize: 20
   databaseName: test
   clusterName: MusicPiracyProtectionCluster
