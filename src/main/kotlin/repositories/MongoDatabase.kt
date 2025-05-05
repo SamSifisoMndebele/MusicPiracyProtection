@@ -1,14 +1,16 @@
-package ul.group14.services
+package ul.group14.repositories
 
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
 import com.mongodb.ServerApi
 import com.mongodb.ServerApiVersion
-import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import com.mongodb.kotlin.client.coroutine.MongoClient
-import io.ktor.server.application.Application
-import io.ktor.server.application.ApplicationStopped
-import io.ktor.server.config.tryGetString
+import com.mongodb.kotlin.client.coroutine.MongoDatabase
+import io.ktor.server.application.*
+import io.ktor.server.config.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
 /**
@@ -29,7 +31,9 @@ import java.util.concurrent.TimeUnit
  *
  * @returns [MongoDatabase] instance
  * */
+private var database: MongoDatabase? = null
 fun Application.connectToMongoDB(): MongoDatabase {
+    if (database != null) return database!!
     val user = environment.config.tryGetString("mongoDb.user")
     val password = environment.config.tryGetString("mongoDb.password")
     val host = environment.config.tryGetString("mongoDb.host") ?: "127.0.0.1"
@@ -41,7 +45,6 @@ fun Application.connectToMongoDB(): MongoDatabase {
     val credentials = user?.let { userVal -> password?.let { passwordVal -> "$userVal:$passwordVal@" } }.orEmpty()
     val url = port?.let { portVal -> "$host:$portVal" } ?: host
     val parameters = "?retryWrites=true&maxPoolSize=$maxPoolSize&w=majority&appName=$clusterName"
-
     val connectionString = "mongodb+srv://$credentials$url/$parameters"
 
     val settings = MongoClientSettings.builder()
@@ -54,9 +57,13 @@ fun Application.connectToMongoDB(): MongoDatabase {
             .build())
         .build()
     val mongoClient = MongoClient.create(settings)
-    val database = mongoClient.getDatabase(databaseName)
+    database = mongoClient.getDatabase(databaseName)
     monitor.subscribe(ApplicationStopped) {
         mongoClient.close()
     }
-    return database
+    return database!!
 }
+
+suspend inline fun <T> databaseQuery(
+    noinline block: suspend CoroutineScope.() -> T
+): T = withContext(Dispatchers.IO, block)
