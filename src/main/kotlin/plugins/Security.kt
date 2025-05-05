@@ -7,6 +7,7 @@ import io.ktor.server.request.receiveParameters
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.sessions.*
+import io.ktor.util.hex
 import org.koin.ktor.ext.inject
 import ul.group14.data.model.response.User
 import ul.group14.pages.auth.loginPage
@@ -19,10 +20,13 @@ import kotlin.time.Duration.Companion.hours
 fun Application.configureSecurity() {
     val authRepository by inject<AuthRepository>()
     install(Sessions) {
+        val secretEncryptKey = hex("00112233445566778899aabbccddeeff")
+        val secretSignKey = hex("6819b57a326945c1968f45236589")
         cookie<User>("user_session") {
-//            cookie.path = "/"
-//            cookie.secure = false
+            cookie.path = "/"
+            cookie.secure = false
             cookie.maxAge = 8.hours
+            transform(SessionTransportTransformerEncrypt(secretEncryptKey, secretSignKey))
         }
     }
     authentication {
