@@ -1,0 +1,25 @@
+package ul.group14.data.model.request
+
+import kotlinx.serialization.Serializable
+import ul.group14.data.model.domain.UserDb
+import ul.group14.data.model.response.UserRole
+import utils.PasswordUtils
+
+@Serializable
+data class UserReq(
+    val email: String,
+    val name: String,
+    val lastname: String,
+    val photoUrl: String? = null,
+    val password: String,
+    val role: UserRole = UserRole.USER
+) {
+    fun toUserDb() = UserDb(
+        email = email,
+        name = name,
+        lastname = lastname,
+        photoUrl = photoUrl,
+        passwordHash = PasswordUtils.encryptPassword(password),
+        role = role,
+    )
+}
