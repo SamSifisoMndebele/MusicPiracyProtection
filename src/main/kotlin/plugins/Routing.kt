@@ -1,43 +1,62 @@
 package ul.group14.plugins
 
 import io.ktor.http.*
-import io.ktor.resources.*
 import io.ktor.server.application.*
-import io.ktor.server.http.content.*
-import io.ktor.server.plugins.requestvalidation.*
-import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.http.content.staticResources
+import io.ktor.server.request.*
 import io.ktor.server.resources.*
-import io.ktor.server.resources.Resources
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.Serializable
+import org.koin.ktor.ext.inject
+import ul.group14.data.model.request.UserReq
+import ul.group14.repositories.AuthRepository
+import java.nio.file.attribute.UserPrincipalNotFoundException
 
 fun Application.configureRouting() {
-    install(RequestValidation) {
-        validate<String> { bodyText ->
-            if (!bodyText.startsWith("Hello"))
-                ValidationResult.Invalid("Body text should start with 'Hello'")
-            else ValidationResult.Valid
-        }
-    }
+    val authRepository by inject<AuthRepository>()
     install(Resources)
-    install(StatusPages) {
-        exception<Throwable> { call, cause ->
-            call.respondText(text = "500: $cause", status = HttpStatusCode.InternalServerError)
-        }
-    }
     routing {
-        get("/hello") {
-            call.respondText("Hello World!")
-        }
-        get<Articles> { article ->
-            // Get all articles ...
-            call.respond("List of articles sorted starting from ${article.sort}")
-        }
         staticResources("/", "static")
+
+        // Create user
+        post("/users") {
+            try {
+                val user = call.receive<UserReq>()
+                val id = authRepository.createUser(user)
+                call.respond(HttpStatusCode.Created, id)
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.InternalServerError, "Failed to create user: $e")
+                e.printStackTrace()
+            }
+        }
+        // Read user
+        get("/users/{id}") {
+            try {
+                val id = call.parameters["id"] ?: throw IllegalArgumentException("No ID found")
+                val user = authRepository.readUserById(id)
+                call.respond(user)
+            } catch (e: UserPrincipalNotFoundException) {
+                call.respond(HttpStatusCode.NotFound, e.localizedMessage)
+                e.printStackTrace()
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.InternalServerError, "Failed to get user: $e")
+                e.printStackTrace()
+            }
+        }
+        // Update user
+//        put("/users/{id}") {
+//            val id = call.parameters["id"] ?: throw IllegalArgumentException("No ID found")
+//            val user = call.receive<UserReq>()
+//            authRepository.updateUser(id, user)?.let {
+//                call.respond(HttpStatusCode.OK)
+//            } ?: call.respond(HttpStatusCode.NotFound)
+//        }
+        // Delete user
+        delete("/users/{id}") {
+            val id = call.parameters["id"] ?: throw IllegalArgumentException("No ID found")
+            authRepository.deleteUser(id)?.let {
+                call.respond(HttpStatusCode.OK)
+            } ?: call.respond(HttpStatusCode.NotFound)
+        }
     }
 }
-
-@Serializable
-@Resource("/articles")
-class Articles(val sort: String? = "new")
