@@ -72,6 +72,16 @@ fun Application.connectToMongoDB(): MongoDatabase {
     return database!!
 }
 
+/**
+ * Executes a database operation block within the scope of an IO-optimized coroutine context.
+ * Designed for running MongoDB or other database queries that may involve IO operations
+ * while leveraging coroutine support for asynchronous programming.
+ *
+ * @param T The return type of the operation performed within the block.
+ * @param block A suspendable lambda function that contains the database operation logic to execute.
+ *              This lambda runs in the context of Dispatchers.IO to optimize for IO-bound tasks.
+ * @return The result of the operation executed within the block.
+ */
 suspend inline fun <T> databaseQuery(
     noinline block: suspend CoroutineScope.() -> T
 ): T = withContext(Dispatchers.IO, block)

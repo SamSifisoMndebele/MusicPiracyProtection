@@ -7,13 +7,14 @@ import com.mongodb.kotlin.client.coroutine.MongoClient
 import io.github.flaxoos.ktor.server.plugins.taskscheduling.TaskScheduling
 import io.github.flaxoos.ktor.server.plugins.taskscheduling.managers.lock.database.mongoDb
 import io.ktor.server.application.*
+import io.ktor.server.config.tryGetString
 import ul.group14.repositories.connectionString
 import java.util.concurrent.TimeUnit
 
 fun Application.configureTaskScheduling() {
     install(TaskScheduling) {
         mongoDb("mongodb manager") {
-            databaseName = "test"
+            databaseName = environment.config.tryGetString("mongoDb.databaseName") ?: "test"
             val connectionString = connectionString()
             val settings = MongoClientSettings.builder()
                 .applyConnectionString(connectionString)
