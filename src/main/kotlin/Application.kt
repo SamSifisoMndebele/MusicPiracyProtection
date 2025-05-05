@@ -14,7 +14,6 @@ fun Application.module() {
     configureKoin()
     configureSecurity()
     configureRequestValidation()
-    configureTemplating()
 //    configureTaskScheduling()
     configureRouting()
 }

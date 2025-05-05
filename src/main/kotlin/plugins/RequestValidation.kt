@@ -8,7 +8,7 @@ fun Application.configureRequestValidation() {
     install(RequestValidation) {
         validate<UserReq> { bodyText ->
             when {
-                bodyText.name.isBlank() -> ValidationResult.Invalid("Name can't be empty")
+                bodyText.names.isBlank() -> ValidationResult.Invalid("Name can't be empty")
                 else -> ValidationResult.Valid
             }
         }

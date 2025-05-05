@@ -8,16 +8,14 @@ import utils.PasswordUtils
 @Serializable
 data class UserReq(
     val email: String,
-    val name: String,
-    val lastname: String,
+    val names: String,
     val photoUrl: String? = null,
     val password: String,
     val role: UserRole = UserRole.USER
 ) {
     fun toUserDb() = UserDb(
         email = email,
-        name = name,
-        lastname = lastname,
+        names = names,
         photoUrl = photoUrl,
         passwordHash = PasswordUtils.encryptPassword(password),
         role = role,

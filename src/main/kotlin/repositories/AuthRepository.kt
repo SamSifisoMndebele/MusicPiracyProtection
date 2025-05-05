@@ -21,7 +21,7 @@ class AuthRepository(private val database: MongoDatabase) {
             database.createCollection("users")
             usersCollection = database.getCollection("users")
             usersCollection.createIndex(
-                keys = Indexes.text(UserDb::email.name),
+                keys = Indexes.ascending(UserDb::email.name),
                 options = IndexOptions().unique(true)
             )
         }
@@ -29,9 +29,8 @@ class AuthRepository(private val database: MongoDatabase) {
 
     companion object {
         class UserNotFoundException(message: String = "User is not found.") : Exception(message)
-        class UserAlreadyExistsException(message: String = "User already exists") : Exception(message)
+        class UserAlreadyExistsException(message: String = "User with this email already exists.") : Exception(message)
         class PasswordException(message: String = "Invalid Password.") : Exception(message)
-        class InvalidEmailException(message: String = "Invalid Email") : Exception(message)
     }
 
     suspend fun createUser(user: UserReq): String = databaseQuery {
@@ -52,26 +51,22 @@ class AuthRepository(private val database: MongoDatabase) {
             ?: throw UserNotFoundException()
     }
 
-//    suspend fun readUserByEmail(email: String): User = databaseQuery {
-//        usersCollection.find(eq(UserDb::email.name, email))
-//            .firstOrNull()
-//            ?.toUser()
-//            ?: throw NoUserFoundException()
-//    }
-
-//    suspend fun updateUser(id: String, user: UserReq): UserDb? = databaseQuery {
-//        usersCollection.findOneAndReplace(Filters.eq("_id", ObjectId(id)), user.toUserDb())
-//    }
-
     suspend fun deleteUser(id: String): User? = databaseQuery {
         usersCollection.findOneAndDelete(eq("_id", ObjectId(id)))
             ?.toUser()
     }
 
-    suspend fun validatePassword(email: String, password: String) = databaseQuery {
-        val user = usersCollection.find(eq(UserDb::email.name, email)).firstOrNull()
-        if (user == null) return@databaseQuery false
-        PasswordUtils.validatePassword(password, user.passwordHash)
+    suspend fun register(names: String, email: String, password: String) = databaseQuery {
+        val user = UserDb(email = email, names = names, passwordHash = PasswordUtils.encryptPassword(password))
+        try {
+            usersCollection.insertOne(user)
+            user.toUser()
+        } catch (e: MongoWriteException) {
+            e.printStackTrace()
+            println(user)
+            e.code == 11000 && throw UserAlreadyExistsException()
+            throw e
+        }
     }
 
     suspend fun login(email: String, password: String) = databaseQuery {

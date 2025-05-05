@@ -5,6 +5,7 @@ import ul.group14.pages.auth.components.headTag
 import ul.group14.pages.auth.components.scripts
 
 fun HTML.registerPage(
+    names: String = "",
     email: String = "",
     password: String = "",
     passwordConfirm: String = "",
@@ -28,6 +29,18 @@ fun HTML.registerPage(
                         classes = "login100-form validate-form"
                     ) {
                         span("login100-form-title") { +"Register" }
+                        div("wrap-input100 validate-input") {
+                            attributes["data-validate"] = "Your names are required"
+                            input(type = InputType.text, classes = "input100") {
+                                name = "names"
+                                placeholder = "Full Names"
+                                value = names
+                            }
+                            span("focus-input100")
+                            span("symbol-input100") {
+                                i("fa fa-user-circle") { attributes["aria-hidden"] = "true" }
+                            }
+                        }
                         div("wrap-input100 validate-input") {
                             if (emailError.isNullOrBlank()) {
                                 attributes["data-validate"] = "Valid email is required: email@mail.com"

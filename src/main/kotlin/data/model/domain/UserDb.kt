@@ -8,8 +8,7 @@ import ul.group14.data.model.response.UserRole
 data class UserDb(
     @BsonId val id: ObjectId = ObjectId(),
     val email: String,
-    val name: String,
-    val lastname: String,
+    val names: String,
     val photoUrl: String? = null,
     val passwordHash: String = "",
     val role: UserRole = UserRole.USER,
@@ -18,8 +17,7 @@ data class UserDb(
     fun toUser() = User(
         id = id.toString(),
         email = email,
-        name = name,
-        lastname = lastname,
+        names = names,
         photoUrl = photoUrl,
         role = role,
         isEmailVerified = isEmailVerified

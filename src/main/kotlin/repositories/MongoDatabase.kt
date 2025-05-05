@@ -13,6 +13,20 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
+fun Application.connectionString(): ConnectionString {
+    val user = environment.config.tryGetString("mongoDb.user")
+    val password = environment.config.tryGetString("mongoDb.password")
+    val host = environment.config.tryGetString("mongoDb.host") ?: "127.0.0.1"
+    val port = environment.config.tryGetString("mongoDb.port")
+    val maxPoolSize = environment.config.tryGetString("mongoDb.maxPoolSize")?.toInt() ?: 20
+    val clusterName = environment.config.tryGetString("mongoDb.clusterName") ?: "MusicPiracyProtectionCluster"
+
+    val credentials = user?.let { userVal -> password?.let { passwordVal -> "$userVal:$passwordVal@" } }.orEmpty()
+    val url = port?.let { portVal -> "$host:$portVal" } ?: host
+    val parameters = "?retryWrites=true&maxPoolSize=$maxPoolSize&w=majority&appName=$clusterName"
+    return ConnectionString("mongodb+srv://$credentials$url/$parameters")
+}
+
 /**
  * Establishes connection with a MongoDB database.
  *
@@ -34,21 +48,11 @@ import java.util.concurrent.TimeUnit
 private var database: MongoDatabase? = null
 fun Application.connectToMongoDB(): MongoDatabase {
     if (database != null) return database!!
-    val user = environment.config.tryGetString("mongoDb.user")
-    val password = environment.config.tryGetString("mongoDb.password")
-    val host = environment.config.tryGetString("mongoDb.host") ?: "127.0.0.1"
-    val port = environment.config.tryGetString("mongoDb.port")
-    val maxPoolSize = environment.config.tryGetString("mongoDb.maxPoolSize")?.toInt() ?: 20
     val databaseName = environment.config.tryGetString("mongoDb.databaseName") ?: "test"
-    val clusterName = environment.config.tryGetString("mongoDb.clusterName") ?: "MusicPiracyProtectionCluster"
-
-    val credentials = user?.let { userVal -> password?.let { passwordVal -> "$userVal:$passwordVal@" } }.orEmpty()
-    val url = port?.let { portVal -> "$host:$portVal" } ?: host
-    val parameters = "?retryWrites=true&maxPoolSize=$maxPoolSize&w=majority&appName=$clusterName"
-    val connectionString = "mongodb+srv://$credentials$url/$parameters"
+    val connectionString = connectionString()
 
     val settings = MongoClientSettings.builder()
-        .applyConnectionString(ConnectionString(connectionString))
+        .applyConnectionString(connectionString)
         .applyToSocketSettings { builder ->
             builder.connectTimeout(20, TimeUnit.SECONDS)
         }
