@@ -11,10 +11,10 @@ fun main(args: Array<String>) {
 fun Application.module() {
     configureHTTP()
     configureSerialization()
+    configureKoin()
     configureSecurity()
-    configureDatabases()
-//    configureTemplating()
-//    configureFrameworks()
-//    configureAdministration()
+    configureRequestValidation()
+    configureTemplating()
+//    configureTaskScheduling()
     configureRouting()
 }
