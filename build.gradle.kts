@@ -43,6 +43,7 @@ ktor {
 }
 
 dependencies {
+    implementation("org.apache.commons:commons-email:1.5")
     implementation("org.mindrot:jbcrypt:0.4")
     implementation("io.ktor:ktor-server-compression")
     implementation("io.ktor:ktor-server-cors")

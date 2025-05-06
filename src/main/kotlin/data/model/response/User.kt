@@ -8,6 +8,7 @@ data class User(
     val email: String,
     val names: String,
     val photoUrl: String?,
+    val phoneNumber: String?,
     val role: UserRole,
     val isEmailVerified: Boolean
 )

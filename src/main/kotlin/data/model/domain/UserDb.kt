@@ -10,6 +10,7 @@ data class UserDb(
     val email: String,
     val names: String,
     val photoUrl: String? = null,
+    val phoneNumber: String? = null,
     val passwordHash: String = "",
     val role: UserRole = UserRole.USER,
     val isEmailVerified: Boolean = false
@@ -20,6 +21,7 @@ data class UserDb(
         names = names,
         photoUrl = photoUrl,
         role = role,
-        isEmailVerified = isEmailVerified
+        isEmailVerified = isEmailVerified,
+        phoneNumber = phoneNumber,
     )
 }

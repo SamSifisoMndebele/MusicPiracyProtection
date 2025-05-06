@@ -12,3 +12,11 @@ mongoDb:
   maxPoolSize: 20
   databaseName: test
   clusterName: MusicPiracyProtectionCluster
+
+HtmlEmail:
+  hostName: smtp.zoho.com
+  port: 465
+  authenticator:
+    email: email
+    password: password
+

@@ -257,6 +257,14 @@ iframe {
   padding: 0 30px 0 68px;
 }
 
+.img-profile {
+  width: 128px;
+  height: 128px;
+  border-radius: 10%;
+  object-fit: cover;
+  position: absolute;
+}
+
 
 /*------------------------------------------------------------------
 [ Focus ]*/

@@ -8,7 +8,7 @@ import io.github.flaxoos.ktor.server.plugins.taskscheduling.TaskScheduling
 import io.github.flaxoos.ktor.server.plugins.taskscheduling.managers.lock.database.mongoDb
 import io.ktor.server.application.*
 import io.ktor.server.config.tryGetString
-import ul.group14.repositories.connectionString
+import ul.group14.database.connectionString
 import java.util.concurrent.TimeUnit
 
 fun Application.configureTaskScheduling() {

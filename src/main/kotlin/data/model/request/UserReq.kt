@@ -10,6 +10,7 @@ data class UserReq(
     val email: String,
     val names: String,
     val photoUrl: String? = null,
+    val phoneNumber: String? = null,
     val password: String,
     val role: UserRole = UserRole.USER
 ) {
@@ -17,6 +18,7 @@ data class UserReq(
         email = email,
         names = names,
         photoUrl = photoUrl,
+        phoneNumber = phoneNumber,
         passwordHash = PasswordUtils.encryptPassword(password),
         role = role,
     )

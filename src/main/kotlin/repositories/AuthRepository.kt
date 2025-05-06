@@ -4,6 +4,7 @@ import com.mongodb.MongoWriteException
 import com.mongodb.client.model.Filters.eq
 import com.mongodb.client.model.IndexOptions
 import com.mongodb.client.model.Indexes
+import com.mongodb.client.model.Updates
 import com.mongodb.kotlin.client.coroutine.MongoCollection
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import kotlinx.coroutines.flow.firstOrNull
@@ -12,6 +13,7 @@ import org.bson.types.ObjectId
 import ul.group14.data.model.domain.UserDb
 import ul.group14.data.model.request.UserReq
 import ul.group14.data.model.response.User
+import ul.group14.database.databaseQuery
 import utils.PasswordUtils
 
 class AuthRepository(private val database: MongoDatabase) {
@@ -31,29 +33,6 @@ class AuthRepository(private val database: MongoDatabase) {
         class UserNotFoundException(message: String = "User is not found.") : Exception(message)
         class UserAlreadyExistsException(message: String = "User with this email already exists.") : Exception(message)
         class PasswordException(message: String = "Invalid Password.") : Exception(message)
-    }
-
-    suspend fun createUser(user: UserReq): String = databaseQuery {
-        val result = try {
-            usersCollection.insertOne(user.toUserDb())
-        } catch (e: MongoWriteException) {
-            e.code == 11000 && throw UserAlreadyExistsException()
-            throw e
-        }
-        result.wasAcknowledged() || throw UserAlreadyExistsException()
-        result.insertedId?.toString().toString()
-    }
-
-    suspend fun readUserById(id: String): User = databaseQuery {
-        usersCollection.find(eq("_id", ObjectId(id)))
-            .firstOrNull()
-            ?.toUser()
-            ?: throw UserNotFoundException()
-    }
-
-    suspend fun deleteUser(id: String): User? = databaseQuery {
-        usersCollection.findOneAndDelete(eq("_id", ObjectId(id)))
-            ?.toUser()
     }
 
     suspend fun register(names: String, email: String, password: String) = databaseQuery {
@@ -77,5 +56,13 @@ class AuthRepository(private val database: MongoDatabase) {
             PasswordUtils.validatePassword(password, user.passwordHash) -> user.toUser()
             else -> throw PasswordException()
         }
+    }
+
+    suspend fun save(email: String, names: String) = databaseQuery {
+        val user = usersCollection.findOneAndUpdate(
+            filter = eq(UserDb::email.name, email),
+            update = Updates.set(UserDb::names.name, names)
+        ) ?: throw UserNotFoundException()
+        user.toUser()
     }
 }

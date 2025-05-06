@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--===============================================================================================-->
+    <link rel="icon" type="image/png" href="../static/images/icons/favicon.ico"/>
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="../static/vendor/bootstrap/css/bootstrap.min.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="../static/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="../static/vendor/animate/animate.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="../static/vendor/css-hamburgers/hamburgers.min.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="../static/vendor/select2/select2.min.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="../static/css/util.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/auth.css">
+    <!--===============================================================================================-->
+    <style>
+        body {
+            background: rgb(65, 131, 108)
+        }
+
+        .form-control:focus {
+            box-shadow: none;
+            border-color: #129183
+        }
+
+        .profile-button {
+            background: rgb(65, 131, 108);
+            box-shadow: none;
+            border: none
+        }
+
+        .profile-button:hover {
+            background: #41836c
+        }
+
+        .profile-button:focus {
+            background: #41836c;
+            box-shadow: none
+        }
+
+        .profile-button:active {
+            background: #41836c;
+            box-shadow: none
+        }
+
+        .back:hover {
+            color: #41836c;
+            cursor: pointer
+        }
+
+        .labels {
+            font-size: 11px
+        }
+    </style>
+</head>
+<body>
+<div class="container rounded bg-white mt-5 mb-5">
+    <!--/*@thymesVar id="user" type="ul.group14.data.model.response.User"*/-->
+    <div class="row">
+        <div class="col-md-3 border-right">
+            <div class="d-flex flex-column align-items-center text-center p-3 py-5">
+                <img class="rounded-circle mt-5" width="150px" th:src="${user.photoUrl}">
+                <span class="font-weight-bold" th:text="${user.names}"></span>
+                <span class="text-black-50" th:text="${user.email}"></span>
+                <span> </span>
+            </div>
+        </div>
+        <div class="col-md-5 border-right">
+            <div class="p-3 py-5">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="text-right">Profile Settings</h4>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-6">
+                        <label class="labels">Names</label>
+                        <input type="text" class="form-control" placeholder="Names" th:value="${user.names}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="labels">Mobile Number</label>
+                        <input type="text" class="form-control" placeholder="Phone Number" th:value="${user.phoneNumber}">
+                    </div>
+                </div>
+                <div class="mt-5 text-center"><button class="btn btn-primary profile-button" type="button">Save Profile</button></div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+</body>
+</html>
